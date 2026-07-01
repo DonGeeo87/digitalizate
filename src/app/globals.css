@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../../src";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -6,12 +7,6 @@
   --color-brand: #10b981;
   --color-brand-dark: #059669;
   --color-brand-light: #34d399;
-  --color-brand-bg: #ecfdf5;
-  --color-brand-lighter: #d1fae5;
-  --color-accent-yellow: #f59e0b;
-  --color-accent-orange: #f97316;
-  --color-accent-blue: #3b82f6;
-  --color-accent-purple: #8b5cf6;
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --radius: 0.75rem;
@@ -24,12 +19,6 @@
   --card-foreground: #0f172a;
   --primary: #10b981;
   --primary-foreground: #ffffff;
-  --secondary: #f8fafc;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #10b981;
-  --accent-foreground: #ffffff;
   --border: #e2e8f0;
   --ring: #10b981;
   --radius: 0.75rem;
@@ -37,11 +26,10 @@
 
 @layer base {
   * { @apply border-border; }
-  body {
-    @apply bg-gradient-to-br from-slate-50 via-white to-emerald-50 text-foreground min-h-screen;
-  }
+  body { @apply text-foreground min-h-screen antialiased; }
 }
 
+/* ANIMACIONES */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
@@ -50,24 +38,12 @@
   0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); }
   50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.3); }
 }
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes shimmer {
-  from { background-position: -200% 0; }
-  to { background-position: 200% 0; }
-}
-
 .animate-float { animation: float 3s ease-in-out infinite; }
-.animate-fade-up { animation: fade-up 0.6s ease-out forwards; }
 .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
-.animate-shimmer { animation: shimmer 2s infinite; }
+.text-balance { text-wrap: balance; }
 
-/* Scrollbar */
+/* SCROLLBAR */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-
-.text-balance { text-wrap: balance; }
