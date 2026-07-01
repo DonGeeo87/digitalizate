@@ -1,0 +1,17 @@
+services:
+  digitalizate-api:
+    build: .
+    container_name: digitalizate-api
+    expose:
+      - "3031"
+    env_file: .env
+    restart: unless-stopped
+    networks:
+      - proxy-network
+      - digitalizate-db
+
+networks:
+  proxy-network:
+    external: true
+  digitalizate-db:
+    external: true

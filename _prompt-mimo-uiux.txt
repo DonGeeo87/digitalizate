@@ -1,0 +1,27 @@
+Eres un experto en UI/UX con experiencia en productos SaaS para emprendedores latinos.
+
+Analiza esta landing page de "Digitalízate" (app de micro-desafíos para digitalizar negocios) y genera:
+
+1. FORTALEZAS ACTUALES (3-5 puntos que están bien)
+2. DEBILIDADES CRÍTICAS (3-5 problemas de UX que afectan la conversión)
+3. MEJORAS PRIORITARIAS (top 3 cambios con alto impacto y bajo esfuerzo)
+4. IDEAS VISUALES (mejoras de diseño concretas)
+
+Sé específico, crítico y sin rodeos. Esto es para emprendedores latinos NO técnicos.
+
+ESTRUCTURA DE LA LANDING:
+- Navbar: logo D + "Digitalízate" + links (Cómo funciona, Categorías) + botón "Empezar gratis"
+- Hero: gradiente verde oscuro, título "Digitaliza tu negocio en 5 minutos", subtítulo, 2 CTAs (primario verde, secundario outline blanco), 3 checkmarks (Sin tarjeta, 5 min, Resultado inmediato)
+- Cómo funciona: 3 cards (Eliges un desafío, Haces la acción, Ganas tu badge) con gradients verde/ámbar/azul
+- Categorías: 4 cards 2x2 (Presencia Digital, Ventas y Pagos, Marketing, Herramientas)
+- Stats: sección oscura slate con 4 métricas (60 desafíos, 5 min, 4 categorías, 100% práctico)
+- CTA final: testimonio + botón
+- Footer: 3 columnas con links + países latam
+- Onboarding modal: formulario nombre + negocio al hacer clic en CTA
+
+PALETA:
+- Verde esmeralda como color principal (#10b981, #059669)
+- Fondo: gradiente sutil slate-50 → white → emerald-50
+- Hero: verde oscuro con texto blanco
+- Tipografía: Geist (system-ui)
+- Cards: blancas con sombras suaves
