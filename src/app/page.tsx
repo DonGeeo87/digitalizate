@@ -119,26 +119,26 @@ export default function Home() {
       </nav>
 
       {/* ─── HERO ─── */}
-      <section className="relative overflow-hidden py-16 sm:py-24 lg:py-32">
+      <section className="relative overflow-hidden bg-gradient-to-br from-green-600 via-emerald-600 to-green-700 text-white px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
         {/* Fondo decorativo */}
-        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, rgba(16,185,129,0.08) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-green-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-emerald-300/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 rounded-full text-green-600 text-sm font-medium">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/15 rounded-full text-white text-sm font-medium">
               <Sparkles className="w-4 h-4" />
               <span>5 minutos al día · Sin teoría · Pura acción</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-[1.1]">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1]">
               {profile
                 ? `¿Listo para el siguiente, ${profile.name.split(" ")[0]}?`
                 : "Digitaliza tu negocio\nen 5 minutos"}
             </h1>
 
-            <p className="text-lg sm:text-xl text-slate-500 max-w-xl mx-auto">
+            <p className="text-lg sm:text-xl text-white/80 max-w-xl mx-auto">
               {profile
                 ? `${profile.businessName} ya empezó su camino digital. Sigue con el siguiente desafío.`
                 : "No es un curso. Son desafíos. Cada día haces UNA cosa concreta que mueve tu negocio."}
@@ -185,7 +185,7 @@ export default function Home() {
                     🚀 Empezar ahora — es gratis
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
-                  <Button size="lg" variant="outline" className="text-base px-8 py-6 border-2 border-slate-200 text-slate-700 hover:bg-green-500/5 transition-all">
+                  <Button size="lg" variant="outline" className="text-base px-8 py-6 border-2 border-white/30 text-white hover:bg-white/10 transition-all">
                     <Zap className="w-5 h-5 mr-2" />
                     Ver desafíos
                   </Button>
@@ -194,17 +194,17 @@ export default function Home() {
             </div>
 
             {/* Indicadores de confianza */}
-            <div className="flex flex-wrap items-center justify-center gap-6 pt-8 text-sm text-slate-500">
+            <div className="flex flex-wrap items-center justify-center gap-6 pt-8 text-sm text-white/70">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500" />
+                <CheckCircle className="w-4 h-4 text-emerald-300" />
                 <span>Sin tarjeta</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500" />
+                <CheckCircle className="w-4 h-4 text-emerald-300" />
                 <span>5 min por desafío</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-green-500" />
+                <CheckCircle className="w-4 h-4 text-emerald-300" />
                 <span>Resultado inmediato</span>
               </div>
             </div>
