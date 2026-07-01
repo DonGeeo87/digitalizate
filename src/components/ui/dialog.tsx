@@ -2,19 +2,21 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { X } from "lucide-react"
 
-const DialogContext = React.createContext<{ open: boolean; onOpenChange: (v: boolean) => void }>({ open: false, onOpenChange: () => {} })
+const DialogContext = React.createContext<{ open: boolean; onOpenChange: (v: boolean) => void }>({
+  open: false,
+  onOpenChange: () => {},
+})
 
-function Dialog({ open: controlledOpen, onOpenChange, children, ...props }: { open?: boolean; onOpenChange?: (v: boolean) => void; children: React.ReactNode; defaultOpen?: boolean }) {
+function Dialog({ open, onOpenChange, children }: { open?: boolean; onOpenChange?: (v: boolean) => void; children: React.ReactNode }) {
   const [internalOpen, setInternalOpen] = React.useState(false)
-  const isOpen = controlledOpen ?? internalOpen
+  const isOpen = open ?? internalOpen
   const setOpen = onOpenChange ?? setInternalOpen
   return (
     <DialogContext.Provider value={{ open: isOpen, onOpenChange: setOpen }}>
-      {children}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setOpen(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 max-h-[85vh] overflow-auto p-6 z-50">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 max-h-[85vh] overflow-auto p-6 z-[101]">
             {children}
           </div>
         </div>
