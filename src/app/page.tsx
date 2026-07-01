@@ -8,18 +8,33 @@ import { challenges } from "@/data/challenges"
 import { useProfile } from "@/lib/profile-store"
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { ArrowRight, Zap, Target, Trophy, Sparkles, CheckCircle, Menu, X, ChevronRight, Globe, ShoppingCart, Megaphone, Wrench } from "lucide-react"
+import { ArrowRight, Zap, Target, Trophy, Sparkles, CheckCircle, Menu, X, Globe, ShoppingCart, Megaphone, Wrench, Loader2, AlertCircle } from "lucide-react"
 
 export default function Home() {
-  const { profile, updateProfile, isLoaded } = useProfile()
+  const { profile, updateProfile, register, login, isLoaded, isOnline } = useProfile()
   const [showOnboarding, setShowOnboarding] = useState(!profile && isLoaded)
+  const [email, setEmail] = useState("")
   const [name, setName] = useState("")
   const [businessName, setBusinessName] = useState("")
   const [menuOpen, setMenuOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState("")
+  const [isLogin, setIsLogin] = useState(false)
 
-  const handleStart = () => {
-    if (!name.trim() || !businessName.trim()) return
-    updateProfile({ name: name.trim(), businessName: businessName.trim(), businessType: "" })
+  const handleStart = async () => {
+    if (!name.trim() || !businessName.trim() || !email.trim()) return
+    setIsSubmitting(true)
+    setError("")
+
+    if (isLogin) {
+      const err = await login(email.trim())
+      if (err) { setError(err); setIsSubmitting(false); return }
+    } else {
+      const err = await register(email.trim(), name.trim(), businessName.trim())
+      if (err) { setError(err); setIsSubmitting(false); return }
+    }
+
+    setIsSubmitting(false)
     setShowOnboarding(false)
   }
 
@@ -40,33 +55,71 @@ export default function Home() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            {!isOnline && (
+              <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-700">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>Sin conexión al servidor. Tus datos se guardan localmente.</span>
+              </div>
+            )}
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+                {error}
+              </div>
+            )}
             <div>
-              <label className="text-sm font-medium mb-1.5 block text-slate-900">Tu nombre</label>
+              <label className="text-sm font-medium mb-1.5 block text-slate-900">Tu email</label>
               <input
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all text-slate-900"
-                placeholder="Ej: María González"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                placeholder="Ej: maria@mirestaurante.com"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 autoFocus
               />
             </div>
-            <div>
-              <label className="text-sm font-medium mb-1.5 block text-slate-900">Nombre de tu negocio</label>
-              <input
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all text-slate-900"
-                placeholder="Ej: Panadería La Esquina"
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-              />
-            </div>
+            {!isLogin && (
+              <>
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block text-slate-900">Tu nombre</label>
+                  <input
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all text-slate-900"
+                    placeholder="Ej: María González"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block text-slate-900">Nombre de tu negocio</label>
+                  <input
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white transition-all text-slate-900"
+                    placeholder="Ej: Panadería La Esquina"
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
+                  />
+                </div>
+              </>
+            )}
             <Button
-              className="w-full text-base py-6 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg shadow-green-500/25 transition-all"
+              className="w-full text-base py-6 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg shadow-green-500/25 transition-all disabled:opacity-50"
               size="lg"
-              disabled={!name.trim() || !businessName.trim()}
+              disabled={isSubmitting || !email.trim() || (!isLogin && (!name.trim() || !businessName.trim()))}
               onClick={handleStart}
             >
-              ¡Empezar mi primer desafío! <ArrowRight className="w-5 h-5 ml-2" />
+              {isSubmitting ? (
+                <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Creando cuenta...</>
+              ) : isLogin ? (
+                <>{'Entrar a mi cuenta'} <ArrowRight className="w-5 h-5 ml-2" /></>
+              ) : (
+                <>{'¡Empezar mi primer desafío!'} <ArrowRight className="w-5 h-5 ml-2" /></>
+              )}
             </Button>
+            <p className="text-center text-sm text-slate-500">
+              {isLogin ? (
+                <>¿No tienes cuenta?{' '}<button onClick={() => { setIsLogin(false); setError(''); setName(''); setBusinessName(''); }} className="text-green-600 font-medium hover:underline">Regístrate</button></>
+              ) : (
+                <>¿Ya tienes cuenta?{' '}<button onClick={() => { setIsLogin(true); setError(''); }} className="text-green-600 font-medium hover:underline">Entrar</button></>
+              )}
+            </p>
           </div>
         </DialogContent>
       </Dialog>
