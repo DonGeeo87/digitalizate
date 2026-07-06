@@ -16,7 +16,7 @@ function Dialog({ open, onOpenChange, children }: { open?: boolean; onOpenChange
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center">
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 max-h-[85vh] overflow-auto p-6 z-[101]">
+          <div className="relative bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full mx-4 max-h-[85vh] overflow-auto p-6 z-[101]">
             {children}
           </div>
         </div>
