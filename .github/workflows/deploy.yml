@@ -1,6 +1,42 @@
 name: Deploy
-on: [push]
+
+on:
+  push:
+    branches: [main]
+
 jobs:
   deploy:
-    uses: DonGeeo87/deploy-templates/.github/workflows/deploy-vps.yml@main
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env from .env.ci
+        run: |
+          if [ -f .env.ci ]; then
+            cp .env.ci .env
+            echo "✅ .env created from .env.ci"
+          else
+            echo "⚠️  No .env.ci found, skipping .env creation"
+          fi
+
+      - name: Copy files to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "docker-compose.yml,Dockerfile,.env"
+          target: "/opt/${{ github.event.repository.name }}"
+          strip_components: 0
+
+      - name: Deploy on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /opt/${{ github.event.repository.name }}
+            docker compose up -d --build
+            docker exec nginx-proxy-manager nginx -s reload 2>/dev/null || true
+            echo "✅ ${{ github.event.repository.name }} deployed"
