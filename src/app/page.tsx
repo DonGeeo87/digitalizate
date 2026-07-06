@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { challenges } from "@/data/challenges"
 import { useProfile } from "@/lib/profile-store"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { ArrowRight, Zap, Target, Trophy, Sparkles, CheckCircle, Menu, X, Globe, ShoppingCart, Megaphone, Wrench, Loader2, AlertCircle } from "lucide-react"
 import DiagnosticoInicial from "@/components/DiagnosticoInicial"
@@ -14,6 +15,7 @@ import type { DiagnosticoResultado } from "@/data/diagnostico"
 
 export default function Home() {
   const { profile, updateProfile, register, login, isLoaded, isOnline } = useProfile()
+  const router = useRouter()
   const [showOnboarding, setShowOnboarding] = useState(!profile && isLoaded)
   const [email, setEmail] = useState("")
   const [name, setName] = useState("")
@@ -39,7 +41,7 @@ export default function Home() {
     }
 
     setIsSubmitting(false)
-    setShowDiagnostico(true)
+    router.push('/dashboard')
   }
 
   const firstChallenge = challenges[0]
