@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://digitalizate-api.codigoguerrero.dev'
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://62.146.227.146:3031'
 
 interface ApiResponse<T> {
   data?: T
@@ -24,7 +24,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<ApiRespo
 
 function authHeaders(): HeadersInit {
   if (typeof window === 'undefined') return {}
-  const token = localStorage.getItem('digitalizate_token')
+  const token = localStorage.getItem('dz_token')
   if (!token) return {}
   const prefix = 'Bea' + String.fromCharCode(114) + String.fromCharCode(101) + String.fromCharCode(114)
   return { Authorization: prefix + ' ' + token }

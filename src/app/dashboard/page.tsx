@@ -11,7 +11,7 @@ import Link from "next/link"
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { profile, progress, badges, isLoaded } = useProfile()
+  const { profile, progress, badges, quizScores, isLoaded } = useProfile()
 
   if (!isLoaded) return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50">
@@ -25,6 +25,10 @@ export default function DashboardPage() {
   if (!profile) { router.push("/"); return null }
 
   const completedCount = Object.values(progress).filter((p) => p.status === "completed").length
+  const quizCount = Object.keys(quizScores).length
+  const avgQuizScore = quizCount > 0
+    ? Math.round(Object.values(quizScores).reduce((sum, q) => sum + Math.round((q.score / q.total) * 100), 0) / quizCount)
+    : 0
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50">
@@ -82,11 +86,12 @@ export default function DashboardPage() {
         </Card>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { icon: Trophy, label: "Completados", value: completedCount, gradient: "from-emerald-500 to-teal-500" },
             { icon: Flame, label: "Racha", value: `${profile.currentStreak} días`, gradient: "from-orange-500 to-amber-500" },
             { icon: Target, label: "Puntos", value: profile.totalPoints, gradient: "from-green-500 to-emerald-600" },
+            { icon: Target, label: "Quizzes", value: `${quizCount} (${avgQuizScore}%)`, gradient: "from-blue-500 to-purple-600" },
           ].map((stat) => (
             <Card key={stat.label} className="border-0 shadow-sm bg-white overflow-hidden">
               <CardContent className="p-4 text-center">

@@ -27,6 +27,7 @@ export interface Challenge {
   badgeName: string
   badgeImageUrl?: string
   isActive: boolean
+  hasLesson?: boolean
   steps: ChallengeStep[]
   validationType: 'confirm' | 'upload' | 'quiz'
   audioUrl?: string

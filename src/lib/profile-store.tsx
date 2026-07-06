@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useCallback, useState, useEffect, type ReactNode } from 'react'
 import type { UserProfile, UserProgress, UserBadge } from '@/types/challenge'
+import type { QuizScore } from '@/types/lesson'
 import * as api from './api'
 import { challenges } from '@/data/challenges'
 
@@ -9,12 +10,14 @@ interface ProfileContextType {
   profile: UserProfile | null
   progress: Record<string, UserProgress>
   badges: UserBadge[]
+  quizScores: Record<string, QuizScore>
   updateProfile: (data: Partial<UserProfile>) => void
   startChallenge: (slug: string) => void
   completeStep: (slug: string, stepId: string) => void
   completeChallenge: (slug: string) => void
   addBadge: (badge: UserBadge) => void
   incrementShare: (challengeSlug: string) => void
+  saveQuizScore: (slug: string, score: number, total: number) => void
   register: (email: string, name: string, businessName?: string) => Promise<string | null>
   login: (email: string) => Promise<string | null>
   logout: () => void
@@ -28,6 +31,7 @@ const LS_PROFILE = 'dz_profile'
 const LS_PROGRESS = 'dz_progress'
 const LS_BADGES = 'dz_badges'
 const LS_TOKEN = 'dz_token'
+const LS_QUIZ_SCORES = 'dz_quiz_scores'
 
 function lsGet<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') return fallback
@@ -59,6 +63,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [progress, setProgress] = useState<Record<string, UserProgress>>({})
   const [badges, setBadges] = useState<UserBadge[]>([])
+  const [quizScores, setQuizScores] = useState<Record<string, QuizScore>>({})
   const [isLoaded, setIsLoaded] = useState(false)
   const [isOnline, setIsOnline] = useState(true)
 
@@ -67,6 +72,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     setProfile(lsGet<UserProfile | null>(LS_PROFILE, null))
     setProgress(lsGet<Record<string, UserProgress>>(LS_PROGRESS, {}))
     setBadges(lsGet<UserBadge[]>(LS_BADGES, []))
+    setQuizScores(lsGet<Record<string, QuizScore>>(LS_QUIZ_SCORES, {}))
     setIsLoaded(true)
   }, [])
 
@@ -260,10 +266,21 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  const saveQuizScore = useCallback((slug: string, score: number, total: number) => {
+    setQuizScores((prev) => {
+      const updated = {
+        ...prev,
+        [slug]: { score, total, completedAt: new Date().toISOString() },
+      }
+      lsSet(LS_QUIZ_SCORES, updated)
+      return updated
+    })
+  }, [])
+
   return (
     <ProfileContext.Provider value={{
-      profile, progress, badges, updateProfile, startChallenge,
-      completeStep, completeChallenge, addBadge, incrementShare,
+      profile, progress, badges, quizScores, updateProfile, startChallenge,
+      completeStep, completeChallenge, addBadge, incrementShare, saveQuizScore,
       register, login, logout, isLoaded, isOnline,
     }}>
       {children}

@@ -6,28 +6,56 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { challenges } from "@/data/challenges"
+import { getLessonBySlug } from "@/data/lessons"
 import { useProfile } from "@/lib/profile-store"
 import { toast } from "sonner"
 import { BadgeShareCard } from "@/components/badge/badge-share-card"
+import { LessonCard } from "@/components/lesson/lesson-card"
+import { LessonProgress } from "@/components/lesson/lesson-progress"
+import { QuizQuestionComponent } from "@/components/quiz/quiz-question"
+import { QuizResults } from "@/components/quiz/quiz-results"
+import { QuizProgress } from "@/components/quiz/quiz-progress"
 import { ArrowLeft, Check, ExternalLink, Sparkles, ChevronRight } from "lucide-react"
+
+type Phase = "lesson" | "quiz" | "challenge" | "completed"
 
 export default function ChallengePage() {
   const params = useParams()
   const router = useRouter()
   const slug = params.slug as string
   const challenge = challenges.find((c) => c.slug === slug)
-  const { profile, progress, startChallenge, completeStep, completeChallenge, addBadge, isLoaded } = useProfile()
+  const lesson = getLessonBySlug(slug)
+  const { profile, progress, quizScores, startChallenge, completeStep, completeChallenge, addBadge, saveQuizScore, isLoaded } = useProfile()
 
   const currentProgress = progress[slug]
+  const [phase, setPhase] = useState<Phase>("lesson")
   const [currentStepIdx, setCurrentStepIdx] = useState(0)
   const [isCompleted, setIsCompleted] = useState(false)
+
+  // Quiz state
+  const [quizQuestionIdx, setQuizQuestionIdx] = useState(0)
+  const [quizAnswers, setQuizAnswers] = useState<Record<string, boolean>>({})
+  const [quizCorrectCount, setQuizCorrectCount] = useState(0)
 
   useEffect(() => {
     if (!isLoaded) return
     if (!profile && slug) { router.push("/"); return }
     if (!currentProgress || currentProgress.status === "started") startChallenge(slug)
-    if (currentProgress?.status === "completed") setIsCompleted(true)
+    if (currentProgress?.status === "completed") {
+      setIsCompleted(true)
+      setPhase("completed")
+    }
     if (currentProgress?.currentStep) setCurrentStepIdx(currentProgress.currentStep - 1)
+
+    // If no lesson, skip to challenge
+    if (challenge && !challenge.hasLesson) {
+      setPhase("challenge")
+    }
+
+    // If already has quiz score, skip to challenge
+    if (quizScores[slug]) {
+      setPhase("challenge")
+    }
   }, [isLoaded, slug])
 
   if (!isLoaded) return (
@@ -47,7 +75,7 @@ export default function ChallengePage() {
     </div>
   )
 
-  if (isCompleted) return (
+  if (isCompleted || phase === "completed") return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 p-6">
       <div className="max-w-md w-full text-center space-y-6">
         <div className="relative">
@@ -94,6 +122,119 @@ export default function ChallengePage() {
     </div>
   )
 
+  // ─── LESSON PHASE ───
+  if (phase === "lesson" && lesson) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50">
+        <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md border-b border-slate-200/50">
+          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-4">
+            <Link href="/">
+              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-green-500/10">
+                <ArrowLeft className="w-5 h-5 text-slate-600" />
+              </Button>
+            </Link>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-sm font-bold truncate text-slate-900">{challenge.iconEmoji} {challenge.title}</h1>
+              <p className="text-xs text-slate-500">{challenge.estimatedMinutes} min · {challenge.difficulty === 1 ? "Fácil" : "Medio"}</p>
+            </div>
+          </div>
+          <div className="max-w-2xl mx-auto px-4 pb-3">
+            <LessonProgress currentPhase="lesson" />
+          </div>
+        </header>
+
+        <main className="max-w-2xl mx-auto px-4 py-8">
+          <LessonCard lesson={lesson} onContinue={() => setPhase("quiz")} />
+        </main>
+      </div>
+    )
+  }
+
+  // ─── QUIZ PHASE ───
+  if (phase === "quiz" && lesson) {
+    const quiz = lesson.quiz
+    const currentQuestion = quiz[quizQuestionIdx]
+    const quizComplete = quizQuestionIdx >= quiz.length
+
+    if (quizComplete) {
+      const finalScore = quizCorrectCount
+      saveQuizScore(slug, finalScore, quiz.length)
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50">
+          <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md border-b border-slate-200/50">
+            <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-4">
+              <Link href="/">
+                <Button variant="ghost" size="icon" className="shrink-0 hover:bg-green-500/10">
+                  <ArrowLeft className="w-5 h-5 text-slate-600" />
+                </Button>
+              </Link>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-sm font-bold truncate text-slate-900">{challenge.iconEmoji} {challenge.title}</h1>
+              </div>
+            </div>
+            <div className="max-w-2xl mx-auto px-4 pb-3">
+              <LessonProgress currentPhase="quiz" />
+            </div>
+          </header>
+
+          <main className="max-w-2xl mx-auto px-4 py-8">
+            <QuizResults
+              score={finalScore}
+              total={quiz.length}
+              questions={quiz}
+              answers={quizAnswers}
+              onRetry={() => {
+                setQuizQuestionIdx(0)
+                setQuizAnswers({})
+                setQuizCorrectCount(0)
+              }}
+              onContinue={() => setPhase("challenge")}
+            />
+          </main>
+        </div>
+      )
+    }
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50">
+        <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md border-b border-slate-200/50">
+          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-4">
+            <Link href="/">
+              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-green-500/10">
+                <ArrowLeft className="w-5 h-5 text-slate-600" />
+              </Button>
+            </Link>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-sm font-bold truncate text-slate-900">{challenge.iconEmoji} {challenge.title}</h1>
+            </div>
+          </div>
+          <div className="max-w-2xl mx-auto px-4 pb-3 space-y-2">
+            <LessonProgress currentPhase="quiz" />
+            <QuizProgress current={quizQuestionIdx + 1} total={quiz.length} correctCount={quizCorrectCount} />
+          </div>
+        </header>
+
+        <main className="max-w-2xl mx-auto px-4 py-8">
+          {currentQuestion && (
+            <QuizQuestionComponent
+              key={currentQuestion.id}
+              question={currentQuestion}
+              questionNumber={quizQuestionIdx + 1}
+              totalQuestions={quiz.length}
+              onAnswer={(correct) => {
+                setQuizAnswers((prev) => ({ ...prev, [currentQuestion.id]: correct }))
+                if (correct) setQuizCorrectCount((c) => c + 1)
+                setQuizQuestionIdx((i) => i + 1)
+              }}
+            />
+          )}
+        </main>
+      </div>
+    )
+  }
+
+  // ─── CHALLENGE PHASE ───
   const currentStep = challenge.steps[currentStepIdx]
   const totalSteps = challenge.steps.length
   const progressPercent = Math.round(((currentStepIdx + 1) / totalSteps) * 100)
@@ -110,6 +251,7 @@ export default function ChallengePage() {
       completeChallenge(challenge.slug)
       addBadge({ challengeSlug: challenge.slug, badgeName: challenge.badgeName, unlockedAt: new Date().toISOString(), sharedCount: 0 })
       setIsCompleted(true)
+      setPhase("completed")
     }
   }
 
@@ -137,11 +279,12 @@ export default function ChallengePage() {
             {Math.round((currentStepIdx + 1) / totalSteps * 100)}%
           </div>
         </div>
-        <div className="max-w-2xl mx-auto px-4 pb-3">
+        <div className="max-w-2xl mx-auto px-4 pb-3 space-y-2">
+          <LessonProgress currentPhase="challenge" />
           <div className="h-2 bg-green-500/10 rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-green-500 to-emerald-600 rounded-full transition-all duration-500 ease-out" style={{ width: `${progressPercent}%` }} />
           </div>
-          <p className="text-xs text-slate-500 mt-1.5 text-right">
+          <p className="text-xs text-slate-500 text-right">
             Paso {currentStepIdx + 1} de {totalSteps}
           </p>
         </div>

@@ -14,6 +14,7 @@ export const challenges: Challenge[] = [
     iconEmoji: '📍',
     badgeName: 'En el Mapa',
     isActive: true,
+    hasLesson: true,
     validationType: 'confirm',
     orderIndex: 1,
     steps: [
@@ -85,6 +86,7 @@ export const challenges: Challenge[] = [
     iconEmoji: '🕐',
     badgeName: 'Horario Listo',
     isActive: true,
+    hasLesson: true,
     validationType: 'confirm',
     orderIndex: 2,
     steps: [
@@ -140,6 +142,7 @@ export const challenges: Challenge[] = [
     iconEmoji: '💳',
     badgeName: 'Primer Pago',
     isActive: true,
+    hasLesson: true,
     validationType: 'confirm',
     orderIndex: 3,
     steps: [
@@ -195,6 +198,7 @@ export const challenges: Challenge[] = [
     iconEmoji: '📸',
     badgeName: 'Foto Pro',
     isActive: true,
+    hasLesson: true,
     validationType: 'confirm',
     orderIndex: 4,
     steps: [
@@ -251,6 +255,7 @@ export const challenges: Challenge[] = [
     iconEmoji: '⭐',
     badgeName: 'Responde',
     isActive: true,
+    hasLesson: true,
     validationType: 'confirm',
     orderIndex: 5,
     steps: [
@@ -306,6 +311,7 @@ export const challenges: Challenge[] = [
     iconEmoji: '📦',
     badgeName: 'Catálogo Activo',
     isActive: true,
+    hasLesson: true,
     validationType: 'confirm',
     orderIndex: 6,
     steps: [
