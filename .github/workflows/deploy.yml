@@ -18,6 +18,12 @@ jobs:
           else
             echo "⚠️  No .env.ci found, skipping .env creation"
           fi
+          if [ -f backend/.env.ci ]; then
+            cp backend/.env.ci backend/.env
+            echo "✅ backend/.env created from backend/.env.ci"
+          else
+            echo "⚠️  No backend/.env.ci found, skipping backend .env creation"
+          fi
 
       - name: Copy all files to VPS
         uses: appleboy/scp-action@v0.1.7
