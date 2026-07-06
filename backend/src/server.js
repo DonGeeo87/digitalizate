@@ -11,6 +11,7 @@ const app = express()
 const PORT = parseInt(process.env.PORT || '3031')
 
 app.use(helmet())
+app.set('trust proxy', 1)
 app.use(cors({
   origin: process.env.CORS_ORIGIN?.split(',').map(s => s.trim()) || ['https://digitalizate.codigoguerrero.dev'],
   credentials: true,
