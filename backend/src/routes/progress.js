@@ -5,6 +5,81 @@ import { authenticate } from '../middleware/auth.js'
 
 export const progressRouter = Router()
 
+// Helper: check and unlock achievements
+async function checkAchievements(client, userId) {
+  const profile = await client.query(
+    `SELECT level, total_points, current_streak, challenges_completed FROM profiles WHERE id = $1`,
+    [userId]
+  )
+  const p = profile.rows[0]
+  if (!p) return []
+
+  const categories = await client.query(
+    `SELECT c.category, COUNT(*) as completed
+     FROM user_progress up
+     JOIN LATERAL (SELECT category FROM challenges WHERE slug = up.challenge_slug) c ON true
+     WHERE up.user_id = $1 AND up.status = 'completed'
+     GROUP BY c.category`,
+    [userId]
+  )
+  const catMap = {}
+  categories.rows.forEach((r) => { catMap[r.category] = parseInt(r.completed) })
+
+  const allAchievements = await client.query(
+    `SELECT slug, requirement_type, requirement_value, requirement_category, xp_reward FROM achievements`
+  )
+
+  const unlocked = await client.query(
+    `SELECT achievement_slug FROM user_achievements WHERE user_id = $1`,
+    [userId]
+  )
+  const unlockedSet = new Set(unlocked.rows.map((r) => r.achievement_slug))
+
+  const newlyUnlocked = []
+  let totalXpReward = 0
+
+  for (const ach of allAchievements.rows) {
+    if (unlockedSet.has(ach.slug)) continue
+
+    let met = false
+    switch (ach.requirement_type) {
+      case 'challenges_completed':
+        met = p.challenges_completed >= ach.requirement_value
+        break
+      case 'streak_days':
+        met = p.current_streak >= ach.requirement_value
+        break
+      case 'level_reached':
+        met = p.level >= ach.requirement_value
+        break
+      case 'points_earned':
+        met = p.total_points >= ach.requirement_value
+        break
+      case 'category_complete':
+        met = (catMap[ach.requirement_category] || 0) >= ach.requirement_value
+        break
+    }
+
+    if (met) {
+      await client.query(
+        `INSERT INTO user_achievements (user_id, achievement_slug) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+        [userId, ach.slug]
+      )
+      newlyUnlocked.push(ach.slug)
+      totalXpReward += ach.xp_reward
+    }
+  }
+
+  if (totalXpReward > 0) {
+    await client.query(
+      `UPDATE profiles SET total_points = total_points + $1 WHERE id = $2`,
+      [totalXpReward, userId]
+    )
+  }
+
+  return newlyUnlocked
+}
+
 const startSchema = z.object({
   challengeSlug: z.string(),
 })
@@ -101,16 +176,54 @@ progressRouter.post('/complete', authenticate, async (req, res) => {
       [req.userId, challengeSlug]
     )
 
-    // Update profile stats
+    // XP por desafío completado
+    const XP_PER_CHALLENGE = 100
+
+    // Lógica de racha: verificar última fecha
+    const lastDate = await client.query(
+      `SELECT last_challenge_date FROM profiles WHERE id = $1`,
+      [req.userId]
+    )
+    const lastChallengeDate = lastDate.rows[0]?.last_challenge_date
+    const now = new Date()
+    let newStreak = 1
+
+    if (!lastChallengeDate) {
+      // Primer desafío
+      newStreak = 1
+    } else {
+      const hoursSinceLast = (now.getTime() - new Date(lastChallengeDate).getTime()) / (1000 * 60 * 60)
+      if (hoursSinceLast < 48) {
+        // Dentro de la ventana de 48h → suma racha
+        newStreak = 0 // el UPDATE abajo suma 1
+      } else {
+        // Pasaron más de 48h → reinicia racha
+        newStreak = 1
+      }
+    }
+
+    // Update profile stats + calcular nivel
     await client.query(
       `UPDATE profiles SET
         challenges_completed = challenges_completed + 1,
-        total_points = total_points + 100,
-        current_streak = current_streak + 1,
-        longest_streak = GREATEST(longest_streak, current_streak + 1)
+        total_points = total_points + $2,
+        current_streak = CASE WHEN $3 = 0 THEN current_streak + 1 ELSE $3 END,
+        longest_streak = GREATEST(longest_streak, CASE WHEN $3 = 0 THEN current_streak + 1 ELSE $3 END),
+        last_challenge_date = NOW()
        WHERE id = $1`,
-      [req.userId]
+      [req.userId, XP_PER_CHALLENGE, newStreak]
     )
+
+    // Recalcular nivel basado en total_points
+    await client.query(`
+      UPDATE profiles SET level = (
+        SELECT max(lvl) FROM (
+          SELECT generate_series(1, 100) AS lvl
+        ) levels
+        WHERE total_points >= (lvl * lvl * 100 + lvl * 50)
+      )
+      WHERE id = $1
+    `, [req.userId])
 
     // Add badge
     if (badgeName) {
@@ -121,6 +234,9 @@ progressRouter.post('/complete', authenticate, async (req, res) => {
         [req.userId, challengeSlug, badgeName]
       )
     }
+
+    // Check and unlock achievements
+    const newlyUnlocked = await checkAchievements(client, req.userId)
 
     await client.query('COMMIT')
 

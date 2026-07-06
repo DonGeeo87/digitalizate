@@ -19,13 +19,13 @@ jobs:
             echo "⚠️  No .env.ci found, skipping .env creation"
           fi
 
-      - name: Copy files to VPS
+      - name: Copy all files to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "docker-compose.yml,Dockerfile,.env"
+          source: "."
           target: "/opt/${{ github.event.repository.name }}"
           strip_components: 0
 
@@ -38,5 +38,4 @@ jobs:
           script: |
             cd /opt/${{ github.event.repository.name }}
             docker compose up -d --build
-            docker exec nginx-proxy-manager nginx -s reload 2>/dev/null || true
             echo "✅ ${{ github.event.repository.name }} deployed"

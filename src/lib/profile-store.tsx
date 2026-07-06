@@ -56,6 +56,7 @@ function mapApiProfile(apiProfile: any): UserProfile {
     currentStreak: apiProfile.current_streak || 0,
     longestStreak: apiProfile.longest_streak || 0,
     challengesCompleted: apiProfile.challenges_completed || 0,
+    lastChallengeDate: apiProfile.last_challenge_date,
   }
 }
 

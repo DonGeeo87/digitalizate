@@ -83,3 +83,7 @@ export async function completeChallenge(challengeSlug: string, badgeName?: strin
 export async function getProgress() {
   return request<{ progress: any[]; badges: any[] }>('/api/progress', { headers: authHeaders() })
 }
+
+export async function getAchievements() {
+  return request<{ achievements: any[] }>('/api/achievements', { headers: authHeaders() })
+}

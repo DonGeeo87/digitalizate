@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   current_streak INTEGER DEFAULT 0,
   longest_streak INTEGER DEFAULT 0,
   challenges_completed INTEGER DEFAULT 0,
+  last_challenge_date TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -36,3 +37,28 @@ CREATE TABLE IF NOT EXISTS user_badges (
 
 CREATE INDEX IF NOT EXISTS idx_progress_user ON user_progress(user_id);
 CREATE INDEX IF NOT EXISTS idx_badges_user ON user_badges(user_id);
+
+-- Achievements (logros automáticos)
+CREATE TABLE IF NOT EXISTS achievements (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL,
+  icon_emoji TEXT DEFAULT '🏆',
+  category TEXT DEFAULT 'general' CHECK (category IN ('general', 'streak', 'level', 'challenges', 'category')),
+  requirement_type TEXT NOT NULL CHECK (requirement_type IN ('challenges_completed', 'streak_days', 'level_reached', 'category_complete', 'points_earned')),
+  requirement_value INTEGER NOT NULL,
+  requirement_category TEXT,
+  xp_reward INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS user_achievements (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  achievement_slug TEXT NOT NULL REFERENCES achievements(slug) ON DELETE CASCADE,
+  unlocked_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, achievement_slug)
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_achievements ON user_achievements(user_id);

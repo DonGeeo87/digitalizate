@@ -3,6 +3,7 @@ import cors from 'cors'
 import { authRouter } from './routes/auth.js'
 import { profileRouter } from './routes/profile.js'
 import { progressRouter } from './routes/progress.js'
+import { achievementsRouter } from './routes/achievements.js'
 
 const app = express()
 const PORT = parseInt(process.env.PORT || '3031')
@@ -19,6 +20,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRouter)
 app.use('/api/profile', profileRouter)
 app.use('/api/progress', progressRouter)
+app.use('/api/achievements', achievementsRouter)
 
 // Error handler
 app.use((err, req, res, next) => {

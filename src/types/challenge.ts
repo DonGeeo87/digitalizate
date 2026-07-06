@@ -28,7 +28,10 @@ export interface Challenge {
   badgeImageUrl?: string
   isActive: boolean
   hasLesson?: boolean
+  isCheckpoint?: boolean
+  moduleName?: string // 'presencia' | 'ventas' | 'marketing' | 'herramientas'
   steps: ChallengeStep[]
+  alternatives?: { title: string; description: string; iconEmoji: string }[]
   validationType: 'confirm' | 'upload' | 'quiz'
   audioUrl?: string
   orderIndex: number
@@ -45,6 +48,7 @@ export interface UserProfile {
   currentStreak: number
   longestStreak: number
   challengesCompleted: number
+  lastChallengeDate?: string
   avatarUrl?: string
 }
 

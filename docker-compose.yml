@@ -1,10 +1,23 @@
 services:
+  digitalizate-frontend:
+    build: .
+    container_name: digitalizate-frontend
+    expose:
+      - "3000"
+    env_file: .env
+    environment:
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+    restart: unless-stopped
+    networks:
+      - proxy-network
+
   digitalizate-api:
     build: ./backend
     container_name: digitalizate-api
-    ports:
-      - "127.0.0.1:3031:3031"
-    env_file: .env
+    expose:
+      - "3031"
+    env_file: ./backend/.env
     restart: unless-stopped
     networks:
       - proxy-network

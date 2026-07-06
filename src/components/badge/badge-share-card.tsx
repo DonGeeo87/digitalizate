@@ -54,16 +54,16 @@ export function BadgeShareCard({
   return (
     <div className="space-y-4">
       {/* Badge Card */}
-      <Card ref={cardRef} className="overflow-hidden border-0 shadow-xl bg-white">
-        <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-6 sm:p-8 text-center text-white relative">
+      <Card ref={cardRef} className="overflow-hidden border border-white/10 shadow-2xl bg-gray-900">
+        <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950 p-6 sm:p-8 text-center text-white relative">
           {/* Decorative circles */}
           <div className="absolute top-4 right-4 w-16 h-16 bg-white/5 rounded-full" />
           <div className="absolute bottom-4 left-4 w-12 h-12 bg-white/5 rounded-full" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-brand/10 rounded-full blur-2xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl" />
 
           <div className="relative">
             <div className="text-6xl mb-3">{iconEmoji}</div>
-            <div className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur rounded-full px-4 py-1.5 text-sm font-medium mb-3">
+            <div className="inline-flex items-center gap-1.5 bg-amber-500/20 backdrop-blur rounded-full px-4 py-1.5 text-sm font-medium mb-3 text-amber-400">
               <Sparkles className="w-3.5 h-3.5" />
               {badgeName}
             </div>
@@ -71,13 +71,13 @@ export function BadgeShareCard({
           </div>
         </div>
         <CardContent className="p-6 text-center space-y-3">
-          <div className="w-14 h-14 mx-auto gradient-brand rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
+          <div className="w-14 h-14 mx-auto bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center text-gray-900 font-bold text-lg shadow-md">
             {userName.split(" ").map((n) => n[0]).join("").slice(0, 2)}
           </div>
-          <p className="text-lg font-bold text-foreground">{userName}</p>
-          <p className="text-muted">{businessName}</p>
-          <div className="inline-flex items-center gap-2 text-sm text-brand bg-brand/10 px-4 py-2 rounded-full">
-            <span className="w-2 h-2 bg-brand rounded-full animate-pulse" />
+          <p className="text-lg font-bold text-white">{userName}</p>
+          <p className="text-gray-400">{businessName}</p>
+          <div className="inline-flex items-center gap-2 text-sm text-amber-400 bg-amber-500/10 px-4 py-2 rounded-full">
+            <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
             Desafío completado
           </div>
         </CardContent>
@@ -85,7 +85,7 @@ export function BadgeShareCard({
 
       {/* Share Button */}
       <Button
-        className={`w-full text-base py-6 transition-all ${shared ? "bg-emerald-500 hover:bg-emerald-600" : "gradient-brand shadow-lg shadow-brand/25 hover:shadow-xl hover:shadow-brand/30"}`}
+        className={`w-full text-base py-6 transition-all ${shared ? "bg-emerald-600 hover:bg-emerald-500 text-white" : "bg-amber-500 hover:bg-amber-400 text-gray-900 font-bold shadow-lg shadow-amber-500/25"}`}
         size="lg"
         onClick={handleShare}
         disabled={isSharing}
