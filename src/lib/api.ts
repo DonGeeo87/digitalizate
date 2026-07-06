@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://62.146.227.146:3031'
+const API_BASE = ''
 
 interface ApiResponse<T> {
   data?: T
