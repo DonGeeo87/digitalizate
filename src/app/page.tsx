@@ -48,7 +48,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-gray-950">
       {/* ─── Onboarding Dialog ─── */}
       <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
-        <DialogContent className="sm:max-w-md bg-gray-900 border border-white/10 shadow-2xl">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <div className="mx-auto w-16 h-16 bg-amber-500/20 rounded-2xl flex items-center justify-center text-3xl mb-4 border border-amber-500/30">
               🚀
