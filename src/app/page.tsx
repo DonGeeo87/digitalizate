@@ -53,12 +53,12 @@ export default function Home() {
             <div className="mx-auto w-16 h-16 bg-amber-500/20 rounded-2xl flex items-center justify-center text-3xl mb-4 border border-amber-500/30">
               🚀
             </div>
-            <DialogTitle className="text-2xl text-center text-white">¡Bienvenido a Digitalízate!</DialogTitle>
-            <DialogDescription className="text-center text-base text-gray-400">
+            <DialogTitle className="text-2xl text-center">¡Bienvenido a Digitalízate!</DialogTitle>
+            <DialogDescription className="text-center text-base">
               Solo 2 datos y empezamos con tu primer desafío. 5 minutos y tu negocio ya está más digital.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-4 px-1">
             {!isOnline && (
               <div className="flex items-center gap-2 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-sm text-amber-400">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
