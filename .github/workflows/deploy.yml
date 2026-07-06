@@ -1,50 +1,6 @@
-name: Deploy Backend to VPS
-
-on:
-  push:
-    branches: [master]
-    paths:
-      - 'backend/**'
-      - 'docker-compose.yml'
-      - '.github/workflows/deploy.yml'
-
+name: Deploy
+on: [push]
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Create .env file
-        run: |
-          cat > .env << EOF
-          PORT=3031
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
-          PGHOST=${{ secrets.PGHOST }}
-          PGPORT=${{ secrets.PGPORT }}
-          PGDATABASE=${{ secrets.PGDATABASE }}
-          PGUSER=${{ secrets.PGUSER }}
-          PGPASSWORD=${{ secrets.PGPASSWORD }}
-          CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
-          EOF
-
-      - name: Copy files to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: "backend/,docker-compose.yml,.env"
-          target: "/opt/digitalizate"
-          strip_components: 0
-
-      - name: Deploy on VPS
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd /opt/digitalizate
-            docker compose up -d --build
-            docker exec nginx-proxy-manager nginx -s reload 2>/dev/null || true
-            echo "✅ Deploy complete"
+    uses: DonGeeo87/deploy-templates/.github/workflows/deploy-vps.yml@main
+    secrets: inherit
